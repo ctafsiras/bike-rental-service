@@ -1,28 +1,34 @@
-import React, { useState } from 'react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export default function UserProfile() {
   const [user, setUser] = useState({
-    name: 'John Doe',
-    email: 'john@example.com',
-    phone: '123-456-7890',
-    address: '123 Main St, City, Country'
-  })
+    name: "John Doe",
+    email: "john@example.com",
+    phone: "123-456-7890",
+    address: "123 Main St, City, Country",
+  });
 
-  const [isEditing, setIsEditing] = useState(false)
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target
-    setUser(prevUser => ({ ...prevUser, [name]: value }))
-  }
+    const { name, value } = event.target;
+    setUser((prevUser) => ({ ...prevUser, [name]: value }));
+  };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+    event.preventDefault();
     // Handle form submission here (e.g., update user profile)
-    setIsEditing(false)
-  }
+    setIsEditing(false);
+  };
 
   return (
     <div className="min-h-screen py-16 bg-gray-100">
@@ -36,7 +42,9 @@ export default function UserProfile() {
             <form onSubmit={handleSubmit}>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Name</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Name
+                  </label>
                   <Input
                     type="text"
                     name="name"
@@ -46,7 +54,9 @@ export default function UserProfile() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Email</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Email
+                  </label>
                   <Input
                     type="email"
                     name="email"
@@ -56,7 +66,9 @@ export default function UserProfile() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Phone</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Phone
+                  </label>
                   <Input
                     type="tel"
                     name="phone"
@@ -66,7 +78,9 @@ export default function UserProfile() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Address</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Address
+                  </label>
                   <Input
                     type="text"
                     name="address"
@@ -77,14 +91,22 @@ export default function UserProfile() {
                 </div>
               </div>
               {isEditing ? (
-                <Button type="submit" className="mt-4">Save Changes</Button>
+                <Button type="submit" className="mt-4">
+                  Save Changes
+                </Button>
               ) : (
-                <Button type="button" onClick={() => setIsEditing(true)} className="mt-4">Edit Profile</Button>
+                <Button
+                  type="button"
+                  onClick={() => setIsEditing(true)}
+                  className="mt-4"
+                >
+                  Edit Profile
+                </Button>
               )}
             </form>
           </CardContent>
         </Card>
       </div>
     </div>
-  )
+  );
 }

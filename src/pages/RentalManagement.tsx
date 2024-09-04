@@ -1,25 +1,38 @@
-import React, { useState } from 'react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export default function RentalManagement() {
-  const id=1;
+  const id = 1;
 
-  const [startTime, setStartTime] = useState('')
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [startTime, setStartTime] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleBooking = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+    event.preventDefault();
     // Here you would typically send the booking data to your backend
-    setIsDialogOpen(true)
-  }
+    setIsDialogOpen(true);
+  };
 
   const handlePayment = () => {
     // Here you would typically handle the payment process
     // router.push('/payment')
-  }
+  };
 
   return (
     <div className="min-h-screen py-16 bg-gray-100">
@@ -33,7 +46,9 @@ export default function RentalManagement() {
             <form onSubmit={handleBooking}>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Start Time</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Start Time
+                  </label>
                   <Input
                     type="datetime-local"
                     value={startTime}
@@ -42,7 +57,9 @@ export default function RentalManagement() {
                   />
                 </div>
               </div>
-              <Button type="submit" className="w-full mt-4">Book Now</Button>
+              <Button type="submit" className="w-full mt-4">
+                Book Now
+              </Button>
             </form>
           </CardContent>
         </Card>
@@ -52,7 +69,8 @@ export default function RentalManagement() {
             <DialogHeader>
               <DialogTitle>Confirm Booking</DialogTitle>
               <DialogDescription>
-                You're about to book this bike. An advance payment of $100 is required to confirm your booking.
+                You're about to book this bike. An advance payment of $100 is
+                required to confirm your booking.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
@@ -62,5 +80,5 @@ export default function RentalManagement() {
         </Dialog>
       </div>
     </div>
-  )
+  );
 }

@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Star, MessageCircle } from "lucide-react";
+import { Star } from "lucide-react";
 
 export default function Home() {
   return (
