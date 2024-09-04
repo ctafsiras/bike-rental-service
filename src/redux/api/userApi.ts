@@ -34,9 +34,21 @@ export const userApi = createApi({
       },
       transformResponse: (response: { data: User }, meta, arg) => response.data,
     }),
+    login: builder.mutation<{ token: string }, Partial<User>>({
+      query: (data) => {
+        return {
+          url: `${AUTH_SLUG}/login`,
+          method: "POST",
+          body: data,
+        };
+      },
+    //   transformResponse: (response: { token: string }, meta, arg) => {
+    //     token: response.token;
+    //   },
+    }),
   }),
 });
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useSignUpMutation } = userApi;
+export const { useSignUpMutation, useLoginMutation } = userApi;
