@@ -17,6 +17,8 @@ import AdminUserManagement from "./pages/AdminUserManagement.tsx";
 import ReturnBike from "./pages/ReturnBike.tsx";
 import CouponManagement from "./pages/CouponManagement.tsx";
 import DiscountWheel from "./pages/DiscountWheel.tsx";
+import { store } from "./redux/store";
+import { Provider } from "react-redux";
 
 const router = createBrowserRouter([
   {
@@ -84,7 +86,9 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    {/* <App /> */}
-    <RouterProvider router={router} />
+    <Provider store={store}>
+      {/* <App /> */}
+      <RouterProvider router={router} />
+    </Provider>
   </StrictMode>
 );
