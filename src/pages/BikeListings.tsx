@@ -10,39 +10,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
-// Mock data for bikes
-const bikes = [
-  {
-    id: 1,
-    name: "Mountain Bike",
-    brand: "Trek",
-    price: 50,
-    cc: 250,
-    year: 2022,
-    available: true,
-  },
-  {
-    id: 2,
-    name: "Road Bike",
-    brand: "Specialized",
-    price: 60,
-    cc: 300,
-    year: 2023,
-    available: true,
-  },
-  {
-    id: 3,
-    name: "City Bike",
-    brand: "Giant",
-    price: 40,
-    cc: 200,
-    year: 2021,
-    available: false,
-  },
-];
+import { useGetAllBikesQuery } from "@/redux/api/bikeApi";
+import Loader from "@/components/loader";
+import { Link } from "react-router-dom";
 
 export default function BikeList() {
+  const { isLoading, data: bikes } = useGetAllBikesQuery(null);
   const [filters, setFilters] = useState({
     brand: "",
     model: "",
@@ -56,15 +29,15 @@ export default function BikeList() {
     setFilters((prevFilters) => ({ ...prevFilters, [name]: value }));
   };
 
-  const filteredBikes = bikes.filter(
+  const filteredBikes = bikes?.filter(
     (bike) =>
       (filters.brand === "" ||
         bike.brand.toLowerCase().includes(filters.brand.toLowerCase())) &&
       (filters.model === "" ||
         bike.name.toLowerCase().includes(filters.model.toLowerCase())) &&
       (filters.availability === "" ||
-        (filters.availability === "available" && bike.available) ||
-        (filters.availability === "unavailable" && !bike.available))
+        (filters.availability === "available" && bike.isAvailable) ||
+        (filters.availability === "unavailable" && !bike.isAvailable))
   );
 
   return (
@@ -105,25 +78,31 @@ export default function BikeList() {
 
         {/* Bike List */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredBikes.map((bike) => (
-            <Card key={bike.id}>
-              <CardHeader>
-                <CardTitle>{bike.name}</CardTitle>
-                <CardDescription>{bike.brand}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p>Price: ${bike.price}/day</p>
-                <p>CC: {bike.cc}</p>
-                <p>Year: {bike.year}</p>
-                <p>Status: {bike.available ? "Available" : "Unavailable"}</p>
-              </CardContent>
-              <CardFooter>
-                <Button onClick={() => console.log(`/bikes/${bike.id}`)}>
-                  View Details
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
+          {isLoading ? (
+            <Loader />
+          ) : (
+            filteredBikes?.map((bike) => (
+              <Card key={bike._id}>
+                <CardHeader>
+                  <CardTitle>{bike.name}</CardTitle>
+                  <CardDescription>{bike.brand}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p>Price: ${bike.pricePerHour}/day</p>
+                  <p>CC: {bike.cc}</p>
+                  <p>Year: {bike.year}</p>
+                  <p>
+                    Status: {bike.isAvailable ? "Available" : "Unavailable"}
+                  </p>
+                </CardContent>
+                <CardFooter>
+                  <Link to="/bike-details" state={{ id: bike._id }}>
+                    <Button>View Details</Button>
+                  </Link>
+                </CardFooter>
+              </Card>
+            ))
+          )}
         </div>
       </div>
     </div>
