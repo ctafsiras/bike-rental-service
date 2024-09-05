@@ -1,11 +1,6 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Users, Bike, Calendar } from "lucide-react";
-import AdminUserManagement from "@/pages/AdminUserManagement";
-import AdminBikeManagement from "@/pages/AdminBikeManagement";
-import RentalManagement from "@/pages/RentalManagement";
-import MyRentals from "@/pages/MyRentals";
+import { Users, Bike, Calendar, User, ListStart, Lamp } from "lucide-react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 
 export default function Dashboard() {
@@ -13,8 +8,20 @@ export default function Dashboard() {
   const route = location.pathname.split("/")[2];
   // what is current route? take it from the react-router-dom
   const navItems = [
+    {
+      link: "profile-management",
+      label: "Profile Management",
+      icon: User,
+    },
+    {
+      link: "rental-management",
+      label: "Rental Management",
+      icon: ListStart,
+    },
     { link: "user-management", label: "User Management", icon: Users },
     { link: "bike-management", label: "Bike Management", icon: Bike },
+    { link: "return-bike", label: "Return Bike", icon: Calendar },
+    { link: "coupon-management", label: "Coupon Management", icon: Lamp },
   ];
 
   return (

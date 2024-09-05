@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export default function UserProfile() {
+export default function ProfileManagement() {
   const [user, setUser] = useState({
     name: "John Doe",
     email: "john@example.com",
