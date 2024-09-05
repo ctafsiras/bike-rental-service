@@ -9,8 +9,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Star } from "lucide-react";
+import { useGetAllBikesQuery } from "@/redux/api/bikeApi";
+import Loader from "@/components/loader";
 
 export default function Home() {
+  const { isLoading, data } = useGetAllBikesQuery(null);
+  console.log("result: ", isLoading, data);
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -34,27 +38,31 @@ export default function Home() {
           <h2 className="text-3xl font-bold mb-8 text-center">
             Featured Bikes
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[1, 2, 3].map((bike) => (
-              <Card key={bike}>
-                <CardHeader>
-                  <CardTitle>Bike Model {bike}</CardTitle>
-                  <CardDescription>Brand Name</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <img
-                    src={`/bike-${bike}.jpg`}
-                    width={300}
-                    height={200}
-                    alt={`Bike ${bike}`}
-                  />
-                </CardContent>
-                <CardFooter>
-                  <Button>View Details</Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
+          {isLoading ? (
+            <Loader />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {data?.map((bike) => (
+                <Card key={bike._id}>
+                  <CardHeader>
+                    <CardTitle>Bike Model: {bike.model}</CardTitle>
+                    <CardDescription>Brand Name: {bike.name}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <img
+                      src={`/bike-${bike.name}.jpg`}
+                      width={300}
+                      height={200}
+                      alt={`Bike ${bike.name}`}
+                    />
+                  </CardContent>
+                  <CardFooter>
+                    <Button>View Details</Button>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

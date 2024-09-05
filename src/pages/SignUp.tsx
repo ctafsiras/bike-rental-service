@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { useSignUpMutation } from "@/redux/api/userApi";
 import { Navigate } from "react-router-dom";
+import Loader from "@/components/loader";
 
 export default function SignUp() {
   const [signUp, { isLoading, data }] = useSignUpMutation();
@@ -38,17 +39,12 @@ export default function SignUp() {
     // Handle form submission here
     // You can use the formData object for further processing
     signUp(formData);
-    
   };
   if (data?.name) {
     return <Navigate to="/login" replace={true} />;
   }
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-gray-900"></div>
-      </div>
-    );
+    return <Loader />;
   }
 
   return (

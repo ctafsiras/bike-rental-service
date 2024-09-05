@@ -19,7 +19,7 @@ export const userApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: "https://bike-rental-service-backend-rho.vercel.app",
   }),
-  tagTypes: ["User"],
+  tagTypes: ["user"],
   endpoints: (builder) => ({
     exam: builder.query<User, string>({
       query: (name) => `${AUTH_SLUG}/${name}`,
@@ -32,7 +32,7 @@ export const userApi = createApi({
           body: data,
         };
       },
-      transformResponse: (response: { data: User }, meta, arg) => response.data,
+      transformResponse: (response: { data: User }) => response.data,
     }),
     login: builder.mutation<{ token: string }, Partial<User>>({
       query: (data) => {
@@ -42,9 +42,6 @@ export const userApi = createApi({
           body: data,
         };
       },
-    //   transformResponse: (response: { token: string }, meta, arg) => {
-    //     token: response.token;
-    //   },
     }),
   }),
 });

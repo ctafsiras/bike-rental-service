@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { useLoginMutation } from "@/redux/api/userApi";
 import { Navigate } from "react-router-dom";
+import Loader from "@/components/loader";
 
 export default function Login() {
   const [login, { isLoading, data }] = useLoginMutation();
@@ -33,14 +34,11 @@ export default function Login() {
     login(formData);
   };
   if (data?.token) {
+    localStorage.setItem("token", data.token); // Save token in localStorage
     return <Navigate to="/" replace={true} />;
   }
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-gray-900"></div>
-      </div>
-    );
+    return <Loader />;
   }
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
