@@ -13,7 +13,6 @@ export type Bike = {
   brand: string;
 };
 
-
 // Define a service using a base URL and expected endpoints
 export const bikeApi = createApi({
   reducerPath: "bikeApi",
@@ -23,13 +22,22 @@ export const bikeApi = createApi({
   tagTypes: ["bikes"],
   endpoints: (builder) => ({
     getAllBikes: builder.query<Bike[], null>({
-        query: () => {
-            return {
-              url: `/`,
-              method: "GET",
-            };
-          },
-          transformResponse: (response: { data: Bike[] }) => response.data,
+      query: () => {
+        return {
+          url: `/`,
+          method: "GET",
+        };
+      },
+      transformResponse: (response: { data: Bike[] }) => response.data,
+    }),
+    getSingleBike: builder.query<Bike, string>({
+      query: (id) => {
+        return {
+          url: `/${id}`,
+          method: "GET",
+        };
+      },
+      transformResponse: (response: { data: Bike }) => response.data,
     }),
     signUp: builder.mutation<Bike, Partial<Bike>>({
       query: (data) => {
@@ -46,4 +54,4 @@ export const bikeApi = createApi({
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useGetAllBikesQuery } = bikeApi;
+export const { useGetAllBikesQuery, useGetSingleBikeQuery } = bikeApi;

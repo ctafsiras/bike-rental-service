@@ -11,10 +11,11 @@ import {
 import { Star } from "lucide-react";
 import { useGetAllBikesQuery } from "@/redux/api/bikeApi";
 import Loader from "@/components/loader";
+import { Link } from "react-router-dom";
 
 export default function Home() {
   const { isLoading, data } = useGetAllBikesQuery(null);
-  console.log("result: ", isLoading, data);
+  console.log("result : ", isLoading, data);
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -45,19 +46,21 @@ export default function Home() {
               {data?.map((bike) => (
                 <Card key={bike._id}>
                   <CardHeader>
-                    <CardTitle>Bike Model: {bike.model}</CardTitle>
-                    <CardDescription>Brand Name: {bike.name}</CardDescription>
+                    <CardTitle>{bike.name}</CardTitle>
+                    <CardDescription>Brand: {bike.brand}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <img
-                      src={`/bike-${bike.name}.jpg`}
+                      src={`https://img.freepik.com/premium-photo/sketch-sport-bike-white-background_956363-7940.jpg?w=300`}
                       width={300}
                       height={200}
                       alt={`Bike ${bike.name}`}
                     />
                   </CardContent>
                   <CardFooter>
-                    <Button>View Details</Button>
+                    <Link to="/bike-details" state={{ id: bike._id }}>
+                      <Button>View Details</Button>
+                    </Link>
                   </CardFooter>
                 </Card>
               ))}

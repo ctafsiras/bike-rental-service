@@ -12,7 +12,7 @@ export type User = {
 };
 
 const AUTH_SLUG = "/api/auth";
-const USERS_SLUG = "/api/users";
+// const USERS_SLUG = "/api/users";
 // Define a service using a base URL and expected endpoints
 export const userApi = createApi({
   reducerPath: "userApi",
