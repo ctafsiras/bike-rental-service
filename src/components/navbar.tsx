@@ -1,13 +1,8 @@
-/**
- * v0 by Vercel.
- * @see https://v0.dev/t/g2ihwxuybxb
- * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
- */
-// import a from "next/a"
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { SVGProps } from "react";
 import { JSX } from "react/jsx-runtime";
+import { NavLink } from "react-router-dom";
 
 export default function Navbar() {
   return (
@@ -17,20 +12,14 @@ export default function Navbar() {
           <MountainIcon className="h-6 w-6" />
           <span className="text-lg font-bold">Acme Inc</span>
         </a>
-        <nav className="hidden gap-4 md:flex">
-          <a
-            href="#"
+        <div className="hidden gap-4 md:flex">
+          <NavLink
+            to="/"
             className="text-sm font-medium hover:underline hover:underline-offset-4"
           >
             Home
-          </a>
-          <a
-            href="#"
-            className="text-sm font-medium hover:underline hover:underline-offset-4"
-          >
-            About Us
-          </a>
-        </nav>
+          </NavLink>
+        </div>
         <div className="flex items-center gap-4">
           <a
             href="#"

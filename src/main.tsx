@@ -19,6 +19,9 @@ import CouponManagement from "./pages/CouponManagement.tsx";
 import DiscountWheel from "./pages/DiscountWheel.tsx";
 import { store } from "./redux/store";
 import { Provider } from "react-redux";
+import Dashboard from "./layout/dashboard.tsx";
+import Footer from "./components/footer.tsx";
+import Navbar from "./components/navbar.tsx";
 
 const router = createBrowserRouter([
   {
@@ -67,7 +70,21 @@ const router = createBrowserRouter([
     element: <AdminBikeManagement />,
   },
   {
-    path: "/admin-user-management",
+    path: "/dashboard",
+    element: <Dashboard />,
+    children: [
+      {
+        path: "user-management", // Add '/' at the start
+        element: <AdminUserManagement />,
+      },
+      {
+        path: "bike-management", // Add '/' at the start
+        element: <AdminBikeManagement />,
+      },
+    ],
+  },
+  {
+    path: "admin-user-management",
     element: <AdminUserManagement />,
   },
   {
@@ -88,7 +105,9 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>
       {/* <App /> */}
+      <Navbar />
       <RouterProvider router={router} />
+      <Footer />
     </Provider>
   </StrictMode>
 );
