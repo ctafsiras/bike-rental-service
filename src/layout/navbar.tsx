@@ -1,37 +1,82 @@
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { SVGProps } from "react";
+import { SVGProps, useEffect, useState } from "react";
 import { JSX } from "react/jsx-runtime";
+import { useGetMyProfileQuery, userApi } from "@/redux/api/userApi";
+import { Link, NavLink, Navigate, useNavigate } from "react-router-dom";
+import { useAppDispatch } from "@/redux/hooks";
 
 export default function Navbar() {
+  const navigate = useNavigate();
+  // const [token, setToken] = useState(localStorage.getItem("token") || "");
+  const token = localStorage.getItem("token") || "";
+  const { isLoading, data: user } = useGetMyProfileQuery(token);
+  const dispatch = useAppDispatch();
+  const logout = () => {
+    localStorage.removeItem("token");
+    useGetMyProfileQuery("token");
+    // dispatch(userApi.endpoints.getMyProfile.b);
+    navigate("/login");
+  };
   return (
     <header className="sticky top-0 z-50 w-full bg-background">
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
-        <a href="#" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2">
           <MountainIcon className="h-6 w-6" />
-          <span className="text-lg font-bold">Acme Inc</span>
-        </a>
+          <span className="text-lg font-bold">BikeRental Service</span>
+        </Link>
         <div className="hidden gap-4 md:flex">
-          {/* <NavLink
-            to="/"
-            className="text-sm font-medium hover:underline hover:underline-offset-4"
-          > */}
-          {/* Home
-          </NavLink> */}
-        </div>
-        <div className="flex items-center gap-4">
-          <a
-            href="#"
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          <NavLink
+            to="/bikes"
+            className={({ isActive, isPending }) =>
+              isPending
+                ? "text-gray-500 transition duration-200 hover:text-gray-700 pending"
+                : isActive
+                ? "text-blue-500 bg-blue-100 rounded-md py-2 px-4 transition duration-200 active"
+                : "text-gray-500 transition duration-200 py-2 px-4 hover:text-gray-700"
+            }
           >
-            Login
-          </a>
-          <a
-            href="#"
-            className="rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            All Bikes
+          </NavLink>
+
+          <NavLink
+            to="/dashboard"
+            className={({ isActive, isPending }) =>
+              isPending
+                ? "text-gray-500 transition duration-200 hover:text-gray-700 pending"
+                : isActive
+                ? "text-blue-500 bg-blue-100 rounded-md py-2 px-4 transition duration-200 active"
+                : "text-gray-500 transition duration-200 py-2 px-4 hover:text-gray-700"
+            }
           >
-            Sign Up
-          </a>
+            Dashboard
+          </NavLink>
+          <NavLink
+            to="/about-us"
+            className={({ isActive, isPending }) =>
+              isPending
+                ? "text-gray-500 transition duration-200 hover:text-gray-700 pending"
+                : isActive
+                ? "text-blue-500 bg-blue-100 rounded-md py-2 px-4 transition duration-200 active"
+                : "text-gray-500 transition duration-200 py-2 px-4 hover:text-gray-700"
+            }
+          >
+            About Us
+          </NavLink>
+          {isLoading ? (
+            <Button disabled>Loading...</Button>
+          ) : user?._id ? (
+            <Button onClick={logout}>Logout</Button>
+          ) : (
+            <>
+              <Link to="/login">
+                <Button>Login</Button>
+              </Link>
+              <Link to="sign-up">
+                <Button>Sign Up</Button>
+              </Link>
+            </>
+          )}
         </div>
         <Sheet>
           <SheetTrigger asChild>
@@ -42,32 +87,51 @@ export default function Navbar() {
           </SheetTrigger>
           <SheetContent side="left" className="md:hidden">
             <div className="grid gap-4 p-4">
-              <a
-                href="#"
+              <Link
+                to="/"
                 className="text-sm font-medium hover:underline hover:underline-offset-4"
               >
                 Home
-              </a>
-              <a
-                href="#"
+              </Link>
+              <Link
+                to="bikes"
+                className="text-sm font-medium hover:underline hover:underline-offset-4"
+              >
+                All Bikes
+              </Link>
+              <Link
+                to="dashboard"
+                className="text-sm font-medium hover:underline hover:underline-offset-4"
+              >
+                Dashboard
+              </Link>
+              <Link
+                to="about-us"
                 className="text-sm font-medium hover:underline hover:underline-offset-4"
               >
                 About Us
-              </a>
-              <div className="flex flex-col gap-2">
-                <a
-                  href="#"
-                  className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                >
-                  Login
-                </a>
-                <a
-                  href="#"
-                  className="rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                >
-                  Sign Up
-                </a>
-              </div>
+              </Link>
+
+              {isLoading ? (
+                <div>Loading...</div>
+              ) : user?._id ? (
+                <Button>Logout</Button>
+              ) : (
+                <>
+                  <Link
+                    to="#"
+                    className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="#"
+                    className="rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )}
             </div>
           </SheetContent>
         </Sheet>

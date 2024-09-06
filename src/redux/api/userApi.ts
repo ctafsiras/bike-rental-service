@@ -2,7 +2,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export type User = {
-  id: number;
+  _id: string;
   name: string;
   email: string;
   password: string;
@@ -12,7 +12,7 @@ export type User = {
 };
 
 const AUTH_SLUG = "/api/auth";
-// const USERS_SLUG = "/api/users";
+const USERS_SLUG = "/api/users";
 // Define a service using a base URL and expected endpoints
 export const userApi = createApi({
   reducerPath: "userApi",
@@ -21,8 +21,33 @@ export const userApi = createApi({
   }),
   tagTypes: ["user"],
   endpoints: (builder) => ({
-    exam: builder.query<User, string>({
-      query: (name) => `${AUTH_SLUG}/${name}`,
+    getMyProfile: builder.query<User, string>({
+      query: (token) => {
+        return {
+          url: `${USERS_SLUG}/me`,
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+      },
+      transformResponse: (response: { data: User }) => response.data,
+    }),
+    updateMyProfile: builder.mutation<
+      User,
+      { user: Partial<User>; token: string }
+    >({
+      query: (data) => {
+        return {
+          url: `${USERS_SLUG}/me`,
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${data.token}`,
+          },
+          body: data.user,
+        };
+      },
+      transformResponse: (response: { data: User }) => response.data,
     }),
     signUp: builder.mutation<User, Partial<User>>({
       query: (data) => {
@@ -48,4 +73,5 @@ export const userApi = createApi({
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useSignUpMutation, useLoginMutation } = userApi;
+export const { useSignUpMutation, useLoginMutation, useGetMyProfileQuery } =
+  userApi;

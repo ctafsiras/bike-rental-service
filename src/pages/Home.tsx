@@ -12,15 +12,20 @@ import { Star } from "lucide-react";
 import { useGetAllBikesQuery } from "@/redux/api/bikeApi";
 import Loader from "@/components/loader";
 import { Link } from "react-router-dom";
+import BikeGif from "../assets/bike.gif";
+import ContactUs from "./ContactUs";
 
 export default function Home() {
   const { isLoading, data } = useGetAllBikesQuery(null);
-  console.log("result : ", isLoading, data);
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative h-[600px]">
-        <img src="/hero-image.jpg" alt="Hero Image" />
+        <img
+          src={BikeGif}
+          className="w-full h-full object-cover"
+          alt="Hero Image"
+        />
         <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white">
           <h1 className="text-5xl font-bold mb-4">
             Rent Your Dream Bike Today
@@ -28,7 +33,9 @@ export default function Home() {
           <p className="text-xl mb-8">Explore the city on two wheels</p>
           <div className="flex w-full max-w-sm items-center space-x-2">
             <Input type="text" placeholder="Search for bikes" />
-            <Button type="submit">Search</Button>
+            <Link to={"/bikes"}>
+              <Button>Get Your Dream Bike</Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -136,29 +143,7 @@ export default function Home() {
       </section>
 
       {/* Contact Us Section */}
-      <section className="py-16">
-        <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-8 text-center">Contact Us</h2>
-          <form className="max-w-md mx-auto">
-            <div className="mb-4">
-              <Input type="text" placeholder="Name" />
-            </div>
-            <div className="mb-4">
-              <Input type="email" placeholder="Email" />
-            </div>
-            <div className="mb-4">
-              <textarea
-                className="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none"
-                rows={4}
-                placeholder="Message"
-              ></textarea>
-            </div>
-            <Button type="submit" className="w-full">
-              Send Message
-            </Button>
-          </form>
-        </div>
-      </section>
+      <ContactUs />
     </div>
   );
 }

@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useGetSingleBikeQuery } from "@/redux/api/bikeApi";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 export default function BikeDetail() {
   const location = useLocation();
@@ -50,9 +50,9 @@ export default function BikeDetail() {
             </CardContent>
             <CardFooter>
               {bike?.isAvailable ? (
-                <Button onClick={() => console.log(`/booking/${id}`)}>
-                  Book Now
-                </Button>
+                <Link to="/rental-management" state={{ id: bike?._id }}>
+                  <Button>Book Now</Button>
+                </Link>
               ) : (
                 <Button disabled>Currently Unavailable</Button>
               )}
