@@ -23,6 +23,8 @@ import BasicLayout from "./layout/basic-layout.tsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
 import TermsOfService from "./pages/TermsOfService.tsx";
 import ContactUs from "./pages/ContactUs.tsx";
+import ProtectedRoute from "./layout/ProtectedRoute.tsx";
+import ProtectedAdmin from "./layout/ProtectedAdmin.tsx";
 
 const router = createBrowserRouter([
   {
@@ -57,7 +59,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/rental-management",
-        element: <RentalManagement />,
+        element: (
+          <ProtectedRoute>
+            <RentalManagement />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "/privacy-policy",
@@ -73,7 +79,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/dashboard",
-        element: <Dashboard />,
+        element: (
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        ),
         children: [
           {
             path: "profile-management",
@@ -85,19 +95,35 @@ const router = createBrowserRouter([
           },
           {
             path: "user-management",
-            element: <AdminUserManagement />,
+            element: (
+              <ProtectedAdmin>
+                <AdminUserManagement />
+              </ProtectedAdmin>
+            ),
           },
           {
             path: "bike-management",
-            element: <AdminBikeManagement />,
+            element: (
+              <ProtectedAdmin>
+                <AdminBikeManagement />
+              </ProtectedAdmin>
+            ),
           },
           {
             path: "return-bike",
-            element: <ReturnBike />,
+            element: (
+              <ProtectedAdmin>
+                <ReturnBike />
+              </ProtectedAdmin>
+            ),
           },
           {
             path: "coupon-management",
-            element: <CouponManagement />,
+            element: (
+              <ProtectedAdmin>
+                <CouponManagement />
+              </ProtectedAdmin>
+            ),
           },
         ],
       },
@@ -112,9 +138,7 @@ const router = createBrowserRouter([
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>
-      {/* <Navbar /> */}
       <RouterProvider router={router} />
-      {/* <Footer /> */}
     </Provider>
   </StrictMode>
 );
