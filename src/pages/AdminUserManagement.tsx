@@ -1,55 +1,52 @@
-import React, { useState } from 'react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Select } from "@/components/ui/select"
-
-// Mock data for users
-const initialUsers = [
-  { id: 1, name: 'John Doe', email: 'john@example.com', role: 'USER' },
-  { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'USER' },
-  { id: 3, name: 'Admin User', email: 'admin@example.com', role: 'ADMIN' },
-]
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  useDeleteUserMutation,
+  useGetAllUsersQuery,
+  useMakeAdminMutation,
+} from "@/redux/api/userApi";
+import Loader from "@/components/loader";
 
 export default function AdminUserManagement() {
-  const [users, setUsers] = useState(initialUsers)
-  const [editingUser, setEditingUser] = useState<any>(null)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [filter, setFilter] = useState('')
+  const [users, setUsers] = useState([] as any[]);
+  const token = localStorage.getItem("token") || "";
+  const { data, isLoading } = useGetAllUsersQuery(token);
+  const [filter, setFilter] = useState("");
+  const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
+  const [makeAdmin, { isLoading: isMaking }] = useMakeAdminMutation();
 
-  const filteredUsers = users.filter(user => 
-    user.name.toLowerCase().includes(filter.toLowerCase()) ||
-    user.email.toLowerCase().includes(filter.toLowerCase())
-  )
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target
-    setEditingUser((prevUser: any) => ({ ...prevUser, [name]: value }))
-  }
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    if (editingUser.id) {
-      setUsers(prevUsers => prevUsers.map(user => user.id === editingUser.id ? editingUser : user))
-    } else {
-      setUsers(prevUsers => [...prevUsers, { ...editingUser, id: Date.now() }])
+  useEffect(() => {
+    if (data) {
+      setUsers(data);
     }
-    setIsDialogOpen(false)
-    setEditingUser(null)
-  }
+  }, [data, isLoading]);
 
-  const handleDelete = (id: number) => {
-    setUsers(prevUsers => prevUsers.filter(user => user.id !== id))
-  }
+  const filteredUsers = users.filter(
+    (user) =>
+      user.name.toLowerCase().includes(filter.toLowerCase()) ||
+      user.email.toLowerCase().includes(filter.toLowerCase())
+  );
 
-  const handlePromote = (id: number) => {
-    setUsers(prevUsers => prevUsers.map(user => 
-      user.id === id ? { ...user, role: 'ADMIN' } : user
-    ))
-  }
+  const handleDelete = (userId: string) => {
+    deleteUser({ token, userId });
+  };
 
+  const handlePromote = (userId: string) => {
+    makeAdmin({ token, userId });
+  };
+  if (isLoading) {
+    return <Loader />;
+  }
   return (
     <div className="min-h-screen py-16 bg-gray-100">
       <div className="max-w-6xl mx-auto px-4">
@@ -66,27 +63,6 @@ export default function AdminUserManagement() {
                 onChange={(e) => setFilter(e.target.value)}
                 className="max-w-sm"
               />
-              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button onClick={() => setEditingUser({})}>Add New User</Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>{editingUser?.id ? 'Edit User' : 'Add New User'}</DialogTitle>
-                  </DialogHeader>
-                  <form onSubmit={handleSubmit}>
-                    <div className="space-y-4">
-                      <Input name="name" placeholder="Name" value={editingUser?.name || ''} onChange={handleInputChange} required />
-                      <Input name="email" type="email" placeholder="Email" value={editingUser?.email || ''} onChange={handleInputChange} required />
-                      <Select name="role" value={editingUser?.role || 'USER'} onValueChange={(value) => setEditingUser((prev:any) => ({ ...prev, role: value }))}>
-                        <option value="USER">User</option>
-                        <option value="ADMIN">Admin</option>
-                      </Select>
-                    </div>
-                    <Button type="submit" className="mt-4">Save</Button>
-                  </form>
-                </DialogContent>
-              </Dialog>
             </div>
             <Table>
               <TableHeader>
@@ -98,16 +74,27 @@ export default function AdminUserManagement() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredUsers.map(user => (
-                  <TableRow key={user.id}>
+                {filteredUsers.map((user) => (
+                  <TableRow key={user._id}>
                     <TableCell>{user.name}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{user.role}</TableCell>
                     <TableCell>
-                      <Button variant="outline" className="mr-2" onClick={() => { setEditingUser(user); setIsDialogOpen(true); }}>Edit</Button>
-                      <Button variant="destructive" className="mr-2" onClick={() => handleDelete(user.id)}>Delete</Button>
-                      {user.role === 'USER' && (
-                        <Button onClick={() => handlePromote(user.id)}>Promote to Admin</Button>
+                      <Button
+                        variant="destructive"
+                        disabled={isDeleting}
+                        className="mr-2"
+                        onClick={() => handleDelete(user._id)}
+                      >
+                        Delete
+                      </Button>
+                      {user.role === "user" && (
+                        <Button
+                          disabled={isMaking}
+                          onClick={() => handlePromote(user._id)}
+                        >
+                          Promote to Admin
+                        </Button>
                       )}
                     </TableCell>
                   </TableRow>
@@ -118,5 +105,5 @@ export default function AdminUserManagement() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

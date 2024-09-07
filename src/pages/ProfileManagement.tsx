@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { MouseEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -8,25 +8,36 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  useGetMyProfileQuery,
+  useUpdateMyProfileMutation,
+} from "@/redux/api/userApi";
+import Loader from "@/components/loader";
 
 export default function ProfileManagement() {
-  const [user, setUser] = useState({
-    name: "John Doe",
-    email: "john@example.com",
-    phone: "123-456-7890",
-    address: "123 Main St, City, Country",
-  });
-
+  const token = localStorage.getItem("token") || "";
+  const { isLoading, data: user } = useGetMyProfileQuery(token);
+  const [updateMyProfile, { isLoading: isUpdating, ...rest }] =
+    useUpdateMyProfileMutation();
   const [isEditing, setIsEditing] = useState(false);
-
+  const [editedUser, setEditedUser] = useState(user);
+  if (isLoading) return <Loader />;
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
-    setUser((prevUser) => ({ ...prevUser, [name]: value }));
+    setEditedUser((prevUser: any) => ({ ...prevUser, [name]: value }));
   };
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     // Handle form submission here (e.g., update user profile)
+    updateMyProfile({
+      token,
+      user: {
+        name: editedUser?.name,
+        email: editedUser?.email,
+        phone: editedUser?.phone,
+        address: editedUser?.address,
+      },
+    });
     setIsEditing(false);
   };
 
@@ -36,74 +47,74 @@ export default function ProfileManagement() {
         <Card>
           <CardHeader>
             <CardTitle>User Profile</CardTitle>
-            <CardDescription>Welcome, {user.name}!</CardDescription>
+            <CardDescription>Welcome, {editedUser?.name}!</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit}>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Name
-                  </label>
-                  <Input
-                    type="text"
-                    name="name"
-                    value={user.name}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Email
-                  </label>
-                  <Input
-                    type="email"
-                    name="email"
-                    value={user.email}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Phone
-                  </label>
-                  <Input
-                    type="tel"
-                    name="phone"
-                    value={user.phone}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Address
-                  </label>
-                  <Input
-                    type="text"
-                    name="address"
-                    value={user.address}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                  />
-                </div>
+            {/* <form onSubmit={handleSubmit}> */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Name
+                </label>
+                <Input
+                  type="text"
+                  name="name"
+                  value={editedUser?.name}
+                  onChange={handleInputChange}
+                  disabled={!isEditing}
+                />
               </div>
-              {isEditing ? (
-                <Button type="submit" className="mt-4">
-                  Save Changes
-                </Button>
-              ) : (
-                <Button
-                  type="button"
-                  onClick={() => setIsEditing(true)}
-                  className="mt-4"
-                >
-                  Edit Profile
-                </Button>
-              )}
-            </form>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Email
+                </label>
+                <Input
+                  type="email"
+                  name="email"
+                  value={editedUser?.email}
+                  onChange={handleInputChange}
+                  disabled={!isEditing}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Phone
+                </label>
+                <Input
+                  type="tel"
+                  name="phone"
+                  value={editedUser?.phone}
+                  onChange={handleInputChange}
+                  disabled={!isEditing}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Address
+                </label>
+                <Input
+                  type="text"
+                  name="address"
+                  value={editedUser?.address}
+                  onChange={handleInputChange}
+                  disabled={!isEditing}
+                />
+              </div>
+            </div>
+            {isEditing ? (
+              <Button
+                disabled={isUpdating}
+                onClick={(e: MouseEvent<HTMLButtonElement>) => handleSubmit(e)}
+                className="mt-4"
+              >
+                Save Changes
+              </Button>
+            ) : (
+              <Button onClick={() => setIsEditing(true)} className="mt-4">
+                Edit Profile
+              </Button>
+            )}
+            {/* </form> */}
           </CardContent>
         </Card>
       </div>

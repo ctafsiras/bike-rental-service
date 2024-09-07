@@ -19,7 +19,7 @@ export const userApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: "https://bike-rental-service-backend-rho.vercel.app",
   }),
-  tagTypes: ["user"],
+  tagTypes: ["users", "user"],
   endpoints: (builder) => ({
     getMyProfile: builder.query<User, string>({
       query: (token) => {
@@ -33,6 +33,19 @@ export const userApi = createApi({
       },
       transformResponse: (response: { data: User }) => response.data,
     }),
+    getAllUsers: builder.query<User[], string>({
+      query: (token) => {
+        return {
+          url: `${USERS_SLUG}`,
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+      },
+      transformResponse: (response: { data: User[] }) => response.data,
+      providesTags: ["users"],
+    }),
     updateMyProfile: builder.mutation<
       User,
       { user: Partial<User>; token: string }
@@ -40,7 +53,7 @@ export const userApi = createApi({
       query: (data) => {
         return {
           url: `${USERS_SLUG}/me`,
-          method: "GET",
+          method: "PUT",
           headers: {
             Authorization: `Bearer ${data.token}`,
           },
@@ -48,6 +61,34 @@ export const userApi = createApi({
         };
       },
       transformResponse: (response: { data: User }) => response.data,
+    }),
+    deleteUser: builder.mutation<User, { token: string; userId: string }>({
+      query: (data) => {
+        return {
+          url: `${USERS_SLUG}/`,
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${data.token}`,
+          },
+          body: { userId: data.userId },
+        };
+      },
+      transformResponse: (response: { data: User }) => response.data,
+      invalidatesTags: ["users"],
+    }),
+    makeAdmin: builder.mutation<User, { token: string; userId: string }>({
+      query: (data) => {
+        return {
+          url: `${USERS_SLUG}/make-admin`,
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${data.token}`,
+          },
+          body: { userId: data.userId },
+        };
+      },
+      transformResponse: (response: { data: User }) => response.data,
+      invalidatesTags: ["users"],
     }),
     signUp: builder.mutation<User, Partial<User>>({
       query: (data) => {
@@ -73,5 +114,12 @@ export const userApi = createApi({
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useSignUpMutation, useLoginMutation, useGetMyProfileQuery } =
-  userApi;
+export const {
+  useSignUpMutation,
+  useLoginMutation,
+  useGetMyProfileQuery,
+  useUpdateMyProfileMutation,
+  useGetAllUsersQuery,
+  useDeleteUserMutation,
+  useMakeAdminMutation,
+} = userApi;
