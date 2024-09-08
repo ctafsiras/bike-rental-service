@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/table";
 import {
   useCreateNewBikeMutation,
+  useDeleteBikeMutation,
   useGetAllBikesQuery,
   useUpdateBikeMutation,
 } from "@/redux/api/bikeApi";
@@ -37,6 +38,7 @@ export default function AdminBikeManagement() {
   const [createNewBike, { data: createdBike, isLoading: isCreating }] =
     useCreateNewBikeMutation();
   const [updateBike, { isLoading: isUpdating }] = useUpdateBikeMutation();
+  const [deleteBike, { isLoading: isDeleting }] = useDeleteBikeMutation();
 
   useEffect(() => {
     if (allBikes) {
@@ -89,8 +91,8 @@ export default function AdminBikeManagement() {
     setEditingBike(null);
   };
 
-  const handleDelete = (id: number) => {
-    setBikes((prevBikes) => prevBikes.filter((bike) => bike.id !== id));
+  const handleDelete = (id: string) => {
+    deleteBike({ id, token: localStorage.getItem("token") || "" });
   };
 
   if (isLoading) {
@@ -246,8 +248,9 @@ export default function AdminBikeManagement() {
                         Edit
                       </Button>
                       <Button
+                        disabled={isDeleting}
                         variant="destructive"
-                        onClick={() => handleDelete(bike.id)}
+                        onClick={() => handleDelete(bike._id)}
                       >
                         Delete
                       </Button>

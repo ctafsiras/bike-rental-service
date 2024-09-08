@@ -69,6 +69,19 @@ export const bikeApi = createApi({
       transformResponse: (response: { data: Bike }) => response.data,
       invalidatesTags: ["bikes"],
     }),
+    deleteBike: builder.mutation<Bike, { id: string; token: string }>({
+      query: (data) => {
+        return {
+          url: `/${data.id}`,
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${data.token}`,
+          },
+        };
+      },
+      transformResponse: (response: { data: Bike }) => response.data,
+      invalidatesTags: ["bikes"],
+    }),
   }),
 });
 
@@ -79,4 +92,5 @@ export const {
   useGetSingleBikeQuery,
   useCreateNewBikeMutation,
   useUpdateBikeMutation,
+  useDeleteBikeMutation,
 } = bikeApi;
