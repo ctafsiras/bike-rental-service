@@ -15,6 +15,24 @@ import { Link } from "react-router-dom";
 import BikeGif from "../assets/bike.gif";
 import ContactUs from "./ContactUs";
 
+const testimonials = [
+  {
+    name: "Ashiqur Rahman",
+    review:
+      "Excellent service! The bikes were in brand-new condition, and the rental process was very smooth.",
+  },
+  {
+    name: "Tasnim Ara",
+    review:
+      "I use this service regularly. Timely service and very helpful staff.",
+  },
+  {
+    name: "Zubair Alam",
+    review:
+      "Great experience. The bikes were comfortable and safe. Thank you for your outstanding service.",
+  },
+];
+
 export default function Home() {
   const { isLoading, data } = useGetAllBikesQuery(null);
   return (
@@ -83,10 +101,10 @@ export default function Home() {
             What Our Customers Say
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3].map((testimonial) => (
-              <Card key={testimonial}>
+            {testimonials.map((testimonial) => (
+              <Card key={testimonial.name}>
                 <CardHeader>
-                  <CardTitle>John Doe</CardTitle>
+                  <CardTitle>{testimonial.name}</CardTitle>
                   <CardDescription>
                     <div className="flex">
                       {[1, 2, 3, 4, 5].map((star) => (
@@ -96,10 +114,7 @@ export default function Home() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p>
-                    "Great service! The bikes were in excellent condition and
-                    the rental process was smooth."
-                  </p>
+                  <p>{testimonial.review}</p>
                 </CardContent>
               </Card>
             ))}
