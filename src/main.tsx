@@ -25,7 +25,7 @@ import TermsOfService from "./pages/TermsOfService.tsx";
 import ContactUs from "./pages/ContactUs.tsx";
 import ProtectedRoute from "./layout/ProtectedRoute.tsx";
 import ProtectedAdmin from "./layout/ProtectedAdmin.tsx";
-
+import { Toaster } from "@/components/ui/toaster";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -137,6 +137,7 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
+    <Toaster />
     <Provider store={store}>
       <RouterProvider router={router} />
     </Provider>

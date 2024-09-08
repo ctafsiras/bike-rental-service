@@ -1,48 +1,76 @@
-import React, { useState } from 'react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-
-// Mock data for rentals
-const initialRentals = [
-  { id: 1, bikeName: 'Mountain Bike', userName: 'John Doe', startTime: '2023-06-01T10:00', status: 'ONGOING' },
-  { id: 2, bikeName: 'Road Bike', userName: 'Jane Smith', startTime: '2023-06-05T14:00', status: 'ONGOING' },
-  { id: 3, bikeName: 'City Bike', userName: 'Alice Johnson', startTime: '2023-06-10T09:00', status: 'RETURNED' },
-]
+import React, { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Booking,
+  useGetAllUserBookingsQuery,
+  useReturnBikeMutation,
+} from "@/redux/api/bookingApi";
+import Loader from "@/components/loader";
 
 export default function ReturnBike() {
-  const [rentals, setRentals] = useState(initialRentals)
-  const [selectedRental, setSelectedRental] = useState<any>(null)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [endTime, setEndTime] = useState('')
-  const [calculatedCost, setCalculatedCost] = useState(0)
+  const [rentals, setRentals] = useState<Booking[]>([]);
+  const [selectedRental, setSelectedRental] = useState<any>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [endTime, setEndTime] = useState(new Date().toISOString().slice(0, 16));
+  const [calculatedCost, setCalculatedCost] = useState(0);
+  const token = localStorage.getItem("token") || "";
+  const { data: allUserBookings, isLoading } =
+    useGetAllUserBookingsQuery(token);
+  const [returnBike, { isLoading: isReturning }] = useReturnBikeMutation();
+
+  console.log(rentals);
+  useEffect(() => {
+    if (allUserBookings) {
+      setRentals(allUserBookings);
+    }
+  }, [allUserBookings, isLoading]);
 
   const handleReturn = (rental: any) => {
-    setSelectedRental(rental)
-    setIsDialogOpen(true)
-  }
+    setSelectedRental(rental);
+    setIsDialogOpen(true);
+  };
 
   const calculateCost = () => {
-    if (!endTime) return
+    if (!endTime) return;
 
-    const start = new Date(selectedRental.startTime)
-    const end = new Date(endTime)
-    const hours = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60))
-    const cost = hours * 10 // Assuming $10 per hour
-    setCalculatedCost(cost)
-  }
+    const start = new Date(selectedRental.startTime);
+    const end = new Date(endTime);
+    const hours = Math.ceil(
+      (end.getTime() - start.getTime()) / (1000 * 60 * 60)
+    );
+    const cost = hours * 10; // Assuming $10 per hour
+    setCalculatedCost(cost);
+  };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    setRentals(prevRentals => prevRentals.map(rental => 
-      rental.id === selectedRental.id ? { ...rental, status: 'RETURNED' } : rental
-    ))
-    setIsDialogOpen(false)
-    setSelectedRental(null)
-    setEndTime('')
-    setCalculatedCost(0)
+    event.preventDefault();
+    returnBike({
+      id: selectedRental._id,
+      token: token,
+    });
+    setIsDialogOpen(false);
+    setSelectedRental(null);
+    setEndTime("");
+    setCalculatedCost(0);
+  };
+  if (isLoading) {
+    return <Loader />;
   }
 
   return (
@@ -64,15 +92,21 @@ export default function ReturnBike() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {rentals.map(rental => (
-                  <TableRow key={rental.id}>
-                    <TableCell>{rental.bikeName}</TableCell>
-                    <TableCell>{rental.userName}</TableCell>
-                    <TableCell>{new Date(rental.startTime).toLocaleString()}</TableCell>
-                    <TableCell>{rental.status}</TableCell>
+                {rentals.map((rental) => (
+                  <TableRow key={rental._id}>
+                    <TableCell>{rental.bikeId?.name}</TableCell>
+                    <TableCell>{rental.userId?.name}</TableCell>
                     <TableCell>
-                      {rental.status === 'ONGOING' && (
-                        <Button onClick={() => handleReturn(rental)}>Return</Button>
+                      {new Date(rental.startTime).toLocaleString()}
+                    </TableCell>
+                    <TableCell>
+                      {rental.isReturned ? "Returned" : "Ongoing"}
+                    </TableCell>
+                    <TableCell>
+                      {rental.isReturned === false && (
+                        <Button onClick={() => handleReturn(rental)}>
+                          Return
+                        </Button>
                       )}
                     </TableCell>
                   </TableRow>
@@ -88,7 +122,9 @@ export default function ReturnBike() {
                 <form onSubmit={handleSubmit}>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">End Time</label>
+                      <label className="block text-sm font-medium text-gray-700">
+                        End Time
+                      </label>
                       <Input
                         type="datetime-local"
                         value={endTime}
@@ -96,12 +132,18 @@ export default function ReturnBike() {
                         required
                       />
                     </div>
-                    <Button type="button" onClick={calculateCost}>Calculate Cost</Button>
+                    <Button type="button" onClick={calculateCost}>
+                      Calculate Cost
+                    </Button>
                     {calculatedCost > 0 && (
-                      <p className="text-lg font-semibold">Total Cost: ${calculatedCost}</p>
+                      <p className="text-lg font-semibold">
+                        Total Cost: ${calculatedCost}
+                      </p>
                     )}
                   </div>
-                  <Button type="submit" className="mt-4">Confirm Return</Button>
+                  <Button type="submit" className="mt-4">
+                    Confirm Return
+                  </Button>
                 </form>
               </DialogContent>
             </Dialog>
@@ -109,5 +151,5 @@ export default function ReturnBike() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

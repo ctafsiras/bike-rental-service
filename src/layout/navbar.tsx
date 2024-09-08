@@ -2,20 +2,30 @@ import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { SVGProps, useEffect, useState } from "react";
 import { JSX } from "react/jsx-runtime";
-import { useGetMyProfileQuery, userApi } from "@/redux/api/userApi";
-import { Link, NavLink, Navigate, useNavigate } from "react-router-dom";
-import { useAppDispatch } from "@/redux/hooks";
+import { useGetMyProfileQuery } from "@/redux/api/userApi";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const navigate = useNavigate();
-  // const [token, setToken] = useState(localStorage.getItem("token") || "");
   const token = localStorage.getItem("token") || "";
-  const { isLoading, data: user } = useGetMyProfileQuery(token);
-  const dispatch = useAppDispatch();
+  const { isLoading, data: fetchedUser } = useGetMyProfileQuery(token);
+
+  const [user, setUser] = useState(() => {
+    // Check if user data is in localStorage initially
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+
+  useEffect(() => {
+    if (fetchedUser && fetchedUser._id) {
+      setUser(fetchedUser);
+      localStorage.setItem("user", JSON.stringify(fetchedUser)); // Store user data in localStorage
+    }
+  }, [fetchedUser]);
   const logout = () => {
     localStorage.removeItem("token");
-    useGetMyProfileQuery("token");
-    // dispatch(userApi.endpoints.getMyProfile.b);
+    localStorage.removeItem("user");
+    setUser(null);
     navigate("/login");
   };
   return (

@@ -35,8 +35,7 @@ export default function AdminBikeManagement() {
     availability: "",
   });
   const { isLoading, data: allBikes } = useGetAllBikesQuery(null);
-  const [createNewBike, { data: createdBike, isLoading: isCreating }] =
-    useCreateNewBikeMutation();
+  const [createNewBike, { isLoading: isCreating }] = useCreateNewBikeMutation();
   const [updateBike, { isLoading: isUpdating }] = useUpdateBikeMutation();
   const [deleteBike, { isLoading: isDeleting }] = useDeleteBikeMutation();
 
@@ -226,7 +225,7 @@ export default function AdminBikeManagement() {
               </TableHeader>
               <TableBody>
                 {filteredBikes.map((bike) => (
-                  <TableRow key={bike.id}>
+                  <TableRow key={bike._id}>
                     <TableCell>{bike.name}</TableCell>
                     <TableCell>{bike.brand}</TableCell>
                     <TableCell>{bike.model}</TableCell>
