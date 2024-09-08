@@ -104,7 +104,10 @@ export default function ReturnBike() {
                     </TableCell>
                     <TableCell>
                       {rental.isReturned === false && (
-                        <Button onClick={() => handleReturn(rental)}>
+                        <Button
+                          disabled={isReturning}
+                          onClick={() => handleReturn(rental)}
+                        >
                           Return
                         </Button>
                       )}
