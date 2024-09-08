@@ -18,7 +18,7 @@ const ProtectedAdmin = ({ children }: { children: JSX.Element }) => {
 
   // Return null or a loader while checking authentication
   if (!isAuthenticated) {
-    return null; // Optionally, return a loading spinner or fallback UI
+    navigate("/"); // Optionally, return a loading spinner or fallback UI
   }
 
   return children;

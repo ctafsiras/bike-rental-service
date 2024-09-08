@@ -7,21 +7,21 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token") || "";
   const { isLoading, data: user } = useGetMyProfileQuery(token);
-  if (isLoading) return <Loader />;
+
   const isAuthenticated = !!user?._id; // Replace with actual authentication logic
 
+  // Redirect to login if not authenticated
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isLoading && !isAuthenticated) {
       navigate("/login");
     }
-  }, [isAuthenticated, navigate]);
+  }, [isLoading, isAuthenticated, navigate]);
 
-  // Return null or a loader while checking authentication
-  if (!isAuthenticated) {
-    return null; // Optionally, return a loading spinner or fallback UI
-  }
+  // Show loader while loading
+  if (isLoading) return <Loader />;
 
-  return children;
+  // Show children if authenticated
+  return isAuthenticated ? children : null; // Return null or a fallback UI while redirecting
 };
 
 export default ProtectedRoute;
