@@ -17,7 +17,7 @@ import Loader from "@/components/loader";
 export default function ProfileManagement() {
   const token = localStorage.getItem("token") || "";
   const { isLoading, data: user } = useGetMyProfileQuery(token);
-  const [updateMyProfile, { isLoading: isUpdating, ...rest }] =
+  const [updateMyProfile, { isLoading: isUpdating }] =
     useUpdateMyProfileMutation();
   const [isEditing, setIsEditing] = useState(false);
   const [editedUser, setEditedUser] = useState(user);
