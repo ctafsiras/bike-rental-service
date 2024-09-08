@@ -2,7 +2,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export type Bike = {
-  _id: string;
+  _id?: string;
   name: string;
   description: string;
   pricePerHour: number;
@@ -19,7 +19,7 @@ export const bikeApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: "https://bike-rental-service-backend-rho.vercel.app/api/bikes",
   }),
-  tagTypes: ["bikes"],
+  tagTypes: ["bikes", "bike"],
   endpoints: (builder) => ({
     getAllBikes: builder.query<Bike[], null>({
       query: () => {
@@ -29,6 +29,7 @@ export const bikeApi = createApi({
         };
       },
       transformResponse: (response: { data: Bike[] }) => response.data,
+      providesTags: ["bikes"],
     }),
     getSingleBike: builder.query<Bike, string>({
       query: (id) => {
@@ -39,19 +40,43 @@ export const bikeApi = createApi({
       },
       transformResponse: (response: { data: Bike }) => response.data,
     }),
-    signUp: builder.mutation<Bike, Partial<Bike>>({
+    createNewBike: builder.mutation<Bike, { bike: Bike; token: string }>({
       query: (data) => {
         return {
-          url: `/signup`,
+          url: `/`,
           method: "POST",
-          body: data,
+          body: data.bike,
+          headers: {
+            Authorization: `Bearer ${data.token}`,
+          },
         };
       },
       transformResponse: (response: { data: Bike }) => response.data,
+      invalidatesTags: ["bikes"],
+    }),
+
+    updateBike: builder.mutation<Bike, { bike: Partial<Bike>; token: string }>({
+      query: (data) => {
+        return {
+          url: `/${data.bike._id}`,
+          method: "PUT",
+          body: data.bike,
+          headers: {
+            Authorization: `Bearer ${data.token}`,
+          },
+        };
+      },
+      transformResponse: (response: { data: Bike }) => response.data,
+      invalidatesTags: ["bikes"],
     }),
   }),
 });
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useGetAllBikesQuery, useGetSingleBikeQuery } = bikeApi;
+export const {
+  useGetAllBikesQuery,
+  useGetSingleBikeQuery,
+  useCreateNewBikeMutation,
+  useUpdateBikeMutation,
+} = bikeApi;

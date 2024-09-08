@@ -1,57 +1,101 @@
-import React, { useState } from 'react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Select } from "@/components/ui/select"
-
-// Mock data for bikes
-const initialBikes = [
-  { id: 1, name: 'Mountain Bike', brand: 'Trek', price: 50, cc: 250, year: 2022, model: 'XC 1', available: true },
-  { id: 2, name: 'Road Bike', brand: 'Specialized', price: 60, cc: 300, year: 2023, model: 'Tarmac', available: true },
-  { id: 3, name: 'City Bike', brand: 'Giant', price: 40, cc: 200, year: 2021, model: 'Escape', available: false },
-]
+import React, { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  useCreateNewBikeMutation,
+  useGetAllBikesQuery,
+  useUpdateBikeMutation,
+} from "@/redux/api/bikeApi";
+import Loader from "@/components/loader";
 
 export default function AdminBikeManagement() {
-  const [bikes, setBikes] = useState(initialBikes)
-  const [editingBike, setEditingBike] = useState<any>(null)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [filters, setFilters] = useState({ brand: '', model: '', availability: '' })
+  const [bikes, setBikes] = useState([] as any[]);
+  const [editingBike, setEditingBike] = useState<any>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    brand: "",
+    model: "",
+    availability: "",
+  });
+  const { isLoading, data: allBikes } = useGetAllBikesQuery(null);
+  const [createNewBike, { data: createdBike, isLoading: isCreating }] =
+    useCreateNewBikeMutation();
+  const [updateBike, { isLoading: isUpdating }] = useUpdateBikeMutation();
 
-  const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = event.target
-    setFilters(prevFilters => ({ ...prevFilters, [name]: value }))
-  }
+  useEffect(() => {
+    if (allBikes) {
+      setBikes(allBikes);
+    }
+  }, [allBikes]);
+  const handleFilterChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = event.target;
+    setFilters((prevFilters) => ({ ...prevFilters, [name]: value }));
+  };
 
-  const filteredBikes = bikes.filter(bike => 
-    (filters.brand === '' || bike.brand.toLowerCase().includes(filters.brand.toLowerCase())) &&
-    (filters.model === '' || bike.model.toLowerCase().includes(filters.model.toLowerCase())) &&
-    (filters.availability === '' || 
-     (filters.availability === 'available' && bike.available) ||
-     (filters.availability === 'unavailable' && !bike.available))
-  )
+  const filteredBikes = bikes?.filter(
+    (bike) =>
+      (filters.brand === "" ||
+        bike.brand.toLowerCase().includes(filters.brand.toLowerCase())) &&
+      (filters.model === "" ||
+        bike.name.toLowerCase().includes(filters.model.toLowerCase())) &&
+      (filters.availability === "" ||
+        (filters.availability === "available" && bike.isAvailable === true) ||
+        (filters.availability === "unavailable" && bike.isAvailable === false))
+  );
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target
-    setEditingBike((prevBike: any) => ({ ...prevBike, [name]: value }))
-  }
+    const { name, value } = event.target;
+    setEditingBike((prevBike: any) => ({ ...prevBike, [name]: value }));
+  };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    if (editingBike.id) {
-      setBikes(prevBikes => prevBikes.map(bike => bike.id === editingBike.id ? editingBike : bike))
+    event.preventDefault();
+    if (editingBike._id) {
+      updateBike({
+        bike: editingBike,
+        token: localStorage.getItem("token") || "",
+      });
     } else {
-      setBikes(prevBikes => [...prevBikes, { ...editingBike, id: Date.now() }])
+      createNewBike({
+        bike: {
+          ...editingBike,
+          isAvailable: true,
+          pricePerHour: Number(editingBike.pricePerHour),
+          cc: Number(editingBike.cc),
+          year: Number(editingBike.year),
+        },
+        token: localStorage.getItem("token") || "",
+      });
     }
-    setIsDialogOpen(false)
-    setEditingBike(null)
-  }
+    setIsDialogOpen(false);
+    setEditingBike(null);
+  };
 
   const handleDelete = (id: number) => {
-    setBikes(prevBikes => prevBikes.filter(bike => bike.id !== id))
-  }
+    setBikes((prevBikes) => prevBikes.filter((bike) => bike.id !== id));
+  };
 
+  if (isLoading) {
+    return <Loader />;
+  }
   return (
     <div className="min-h-screen py-16 bg-gray-100">
       <div className="max-w-6xl mx-auto px-4">
@@ -75,33 +119,92 @@ export default function AdminBikeManagement() {
                 value={filters.model}
                 onChange={handleFilterChange}
               />
-              <Select name="availability" value={filters.availability} onValueChange={(value) => setFilters(prev => ({ ...prev, availability: value }))}>
+              {/* <Input
+                name="availability"
+                type="select"
+                value={filters.availability}
+                onChange={handleFilterChange}
+                className="w-full sm:w-auto"
+              >
                 <option value="">All</option>
                 <option value="available">Available</option>
                 <option value="unavailable">Unavailable</option>
-              </Select>
+              </Input> */}
+
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button onClick={() => setEditingBike({})}>Add New Bike</Button>
+                  <Button onClick={() => setEditingBike({})}>
+                    Add New Bike
+                  </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>{editingBike?.id ? 'Edit Bike' : 'Add New Bike'}</DialogTitle>
+                    <DialogTitle>
+                      {editingBike?._id ? "Edit Bike" : "Add New Bike"}
+                    </DialogTitle>
                   </DialogHeader>
                   <form onSubmit={handleSubmit}>
                     <div className="space-y-4">
-                      <Input name="name" placeholder="Name" value={editingBike?.name || ''} onChange={handleInputChange} required />
-                      <Input name="brand" placeholder="Brand" value={editingBike?.brand || ''} onChange={handleInputChange} required />
-                      <Input name="model" placeholder="Model" value={editingBike?.model || ''} onChange={handleInputChange} required />
-                      <Input name="price" type="number" placeholder="Price" value={editingBike?.price || ''} onChange={handleInputChange} required />
-                      <Input name="cc" type="number" placeholder="CC" value={editingBike?.cc || ''} onChange={handleInputChange} required />
-                      <Input name="year" type="number" placeholder="Year" value={editingBike?.year || ''} onChange={handleInputChange} required />
-                      <Select name="available" value={editingBike?.available ? 'true' : 'false'} onValueChange={(value) => setEditingBike((prev: any) => ({ ...prev, available: value === 'true' }))}>
-                        <option value="true">Available</option>
-                        <option value="false">Unavailable</option>
-                      </Select>
+                      <Input
+                        name="name"
+                        placeholder="Name"
+                        value={editingBike?.name || ""}
+                        onChange={handleInputChange}
+                        required
+                      />
+                      <Input
+                        name="description"
+                        placeholder="Description"
+                        value={editingBike?.description || ""}
+                        onChange={handleInputChange}
+                        required
+                      />
+                      <Input
+                        name="brand"
+                        placeholder="Brand"
+                        value={editingBike?.brand || ""}
+                        onChange={handleInputChange}
+                        required
+                      />
+                      <Input
+                        name="model"
+                        placeholder="Model"
+                        value={editingBike?.model || ""}
+                        onChange={handleInputChange}
+                        required
+                      />
+                      <Input
+                        name="pricePerHour"
+                        type="number"
+                        placeholder="Price Per Hour"
+                        value={editingBike?.pricePerHour || ""}
+                        onChange={handleInputChange}
+                        required
+                      />
+                      <Input
+                        name="cc"
+                        type="number"
+                        placeholder="CC"
+                        value={editingBike?.cc || ""}
+                        onChange={handleInputChange}
+                        required
+                      />
+                      <Input
+                        name="year"
+                        type="number"
+                        placeholder="Year"
+                        value={editingBike?.year || ""}
+                        onChange={handleInputChange}
+                        required
+                      />
                     </div>
-                    <Button type="submit" className="mt-4">Save</Button>
+                    <Button
+                      disabled={isCreating || isUpdating}
+                      type="submit"
+                      className="mt-4"
+                    >
+                      Save
+                    </Button>
                   </form>
                 </DialogContent>
               </Dialog>
@@ -115,23 +218,39 @@ export default function AdminBikeManagement() {
                   <TableHead>Price</TableHead>
                   <TableHead>CC</TableHead>
                   <TableHead>Year</TableHead>
-                  <TableHead>Availability</TableHead>
+                  <TableHead>isAvailable</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredBikes.map(bike => (
+                {filteredBikes.map((bike) => (
                   <TableRow key={bike.id}>
                     <TableCell>{bike.name}</TableCell>
                     <TableCell>{bike.brand}</TableCell>
                     <TableCell>{bike.model}</TableCell>
-                    <TableCell>${bike.price}/day</TableCell>
+                    <TableCell>${bike.pricePerHour}/day</TableCell>
                     <TableCell>{bike.cc}</TableCell>
                     <TableCell>{bike.year}</TableCell>
-                    <TableCell>{bike.available ? 'Available' : 'Unavailable'}</TableCell>
                     <TableCell>
-                      <Button variant="outline" className="mr-2" onClick={() => { setEditingBike(bike); setIsDialogOpen(true); }}>Edit</Button>
-                      <Button variant="destructive" onClick={() => handleDelete(bike.id)}>Delete</Button>
+                      {bike.isAvailable ? "Available" : "Unavailable"}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="outline"
+                        className="mr-2"
+                        onClick={() => {
+                          setEditingBike(bike);
+                          setIsDialogOpen(true);
+                        }}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        onClick={() => handleDelete(bike.id)}
+                      >
+                        Delete
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -141,5 +260,5 @@ export default function AdminBikeManagement() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
